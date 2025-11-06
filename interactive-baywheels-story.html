@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can Bike Share Solve the Bay Area's Last-Mile Problem?</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600;700;800;900&family=Libre+Baskerville:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Libre Franklin', -apple-system, sans-serif;
+            background: #1a1a1a;
+            color: #e8e8e8;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 2px;
+            height: 20px;
+            background: #e8e8e8;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease, height 0.2s ease, background 0.2s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav a {
+            color: #e8e8e8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #00d9ff;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 3rem 3rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #00d9ff;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+        }
+
+        .dek {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            line-height: 1.5;
+            color: #999;
+            max-width: 800px;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+
+        .byline {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .byline strong {
+            color: #e8e8e8;
+            font-weight: 600;
+        }
+
+        .date {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Key Findings Callout */
+        .key-findings-box {
+            background: rgba(0, 217, 255, 0.05);
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            border-radius: 4px;
+            padding: 3rem;
+            max-width: 1100px;
+            margin: 4rem auto;
+        }
+
+        .key-findings-box h2 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #00d9ff;
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .finding-highlight {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #00d9ff;
+        }
+
+        .finding-highlight h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e8e8e8;
+        }
+
+        .finding-highlight p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #999;
+        }
+
+        /* Full Bleed Image */
+        .full-bleed {
+            width: 100vw;
+            height: 80vh;
+            position: relative;
+            margin: 4rem 0;
+            background: #0a0a0a;
+        }
+
+        .full-bleed img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(1.05);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .full-bleed.visible img {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .image-caption {
+            position: absolute;
+            bottom: 2rem;
+            left: 3rem;
+            right: 3rem;
+            font-size: 0.85rem;
+            color: #999;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 1.5rem;
+            backdrop-filter: blur(10px);
+            font-style: italic;
+            border-left: 3px solid #00d9ff;
+        }
+
+        /* Story Container */
+        .story {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .story h2 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 3rem 0 1.5rem;
+            line-height: 1.3;
+        }
+
+        .story p {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+        }
+
+        .story p:first-of-type::first-letter {
+            font-size: 4rem;
+            font-weight: 700;
+            float: left;
+            line-height: 0.85;
+            margin: 0.1rem 0.15rem 0 0;
+            font-family: 'Libre Baskerville', Georgia, serif;
+            color: #00d9ff;
+        }
+
+        /* Three Column Comparison */
+        .three-col-compare {
+            max-width: 1400px;
+            margin: 5rem auto;
+            padding: 0 3rem;
+        }
+
+        .three-col-compare h2 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .city-block {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .city-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .city-block h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #00d9ff;
+        }
+
+        .city-block img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .city-stats {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-left: 3px solid #00d9ff;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #999;
+        }
+
+        .stat-value {
+            color: #e8e8e8;
+            font-weight: 600;
+        }
+
+        /* Split Layout */
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 5rem auto;
+            padding: 0 3rem;
+            align-items: center;
+        }
+
+        .split-content {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.8s ease;
+        }
+
+        .split-content.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .split-content h3 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .split-content p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .split-image {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s ease;
+        }
+
+        .split-image.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .split-image img {
+            width: 100%;
+            height: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Regression Results */
+        .regression-results {
+            max-width: 1200px;
+            margin: 5rem auto;
+            padding: 3rem;
+            background: rgba(0, 217, 255, 0.03);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .regression-results h2 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: #00d9ff;
+            text-align: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2rem;
+            border-left: 3px solid #00d9ff;
+        }
+
+        .result-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .result-stat {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00d9ff;
+            margin: 1rem 0;
+        }
+
+        .result-card p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #999;
+        }
+
+        /* Closing */
+        .closing {
+            max-width: 700px;
+            margin: 5rem auto;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 2px solid #00d9ff;
+        }
+
+        .closing h2 {
+            font-family: 'Libre Baskerville', Georgia, serif;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .closing p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #999;
+            margin-bottom: 2rem;
+        }
+
+        .cta {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #00d9ff;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+
+        .cta:hover {
+            background: #00b8d9;
+        }
+
+        @media (max-width: 968px) {
+            .hero {
+                padding: 6rem 2rem 2rem;
+            }
+
+            .findings-grid,
+            .cities-grid,
+            .split,
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-bleed {
+                height: 60vh;
+            }
+
+            .image-caption {
+                left: 1.5rem;
+                right: 1.5rem;
+            }
+
+            .key-findings-box,
+            .three-col-compare,
+            .regression-results {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+
+    <nav>
+        <a href="index.html">← BACK</a>
+        <a href="https://sherya21.github.io/Portfolio/projects/11_Baywheels/" target="_blank">FULL ANALYSIS</a>
+    </nav>
+
+    <article>
+        <header class="hero">
+            <div class="category">Data Investigation</div>
+            <h1>Can Bike Share Solve the Bay Area's Last-Mile Problem?</h1>
+            <p class="dek">
+                I analyzed 500,000+ Bay Wheels trips to understand which neighborhoods depend on 
+                bike share to bridge the gap between transit and destination—and what that reveals 
+                about the future of urban mobility.
+            </p>
+            <div class="byline">By <strong>Shreya Bansal</strong></div>
+            <div class="date">Published May 2025</div>
+        </header>
+
+        <div class="key-findings-box">
+            <h2>Key Findings</h2>
+            <div class="findings-grid">
+                <div class="finding-highlight">
+                    <h4>Transit Culture Drives Usage</h4>
+                    <p>The strongest predictor: percentage of public transit commuters in a neighborhood. Bike share thrives where transit culture already exists.</p>
+                </div>
+                <div class="finding-highlight">
+                    <h4>Classic Bikes Dominate</h4>
+                    <p>Classic bikes are significantly more likely than e-bikes for last-mile trips. Short hops don't need electric assistance.</p>
+                </div>
+                <div class="finding-highlight">
+                    <h4>Members Are Core Users</h4>
+                    <p>Bay Wheels members—not casual riders—make up the bulk of last-mile trips, integrating bike share into daily commutes.</p>
+                </div>
+                <div class="finding-highlight">
+                    <h4>Weather Shapes Patterns</h4>
+                    <p>High winds significantly reduce trips. Evening usage peaks higher than morning, showing flexibility in return commutes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="full-bleed">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Crect fill='%230a0a0a' width='1200' height='800'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='20' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3EPredicted Last-Mile Hub Probability Map%3C/text%3E%3C/svg%3E" alt="Predicted probability map" id="hero-map">
+            <div class="image-caption">
+                Warmer colors indicate stations with higher predicted probability of last-mile usage. Model achieved 78% accuracy.
+            </div>
+        </div>
+
+        <div class="story">
+            <p>
+                Every weekday morning, thousands of commuters step off BART trains across the Bay Area, 
+                only to face a familiar dilemma: their office sits eight blocks away—too far to walk 
+                in business attire, but hardly worth a rideshare. This gap represents urban transit's 
+                most stubborn challenge.
+            </p>
+
+            <p>
+                I wanted to understand whether Bay Wheels bike share was solving this "last mile" 
+                problem. By analyzing over 500,000 trips from September 2024 across San Francisco, 
+                East Bay, and San Jose, combined with census demographics and weather data, I built 
+                a predictive model to identify which stations function as true last-mile connectors.
+            </p>
+
+            <p>
+                The results reveal a system that's working—but not equally everywhere.
+            </p>
+        </div>
+
+        <div class="three-col-compare">
+            <h2>Comparing Three Cities</h2>
+            <div class="cities-grid">
+                <div class="city-block">
+                    <h3>San Francisco</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%232a2a2a' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3ESF Density Map%3C/text%3E%3C/svg%3E" alt="SF density">
+                    <div class="city-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Bike Stations</span>
+                            <span class="stat-value">350+</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Transit Hubs</span>
+                            <span class="stat-value">18 BART</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Last-Mile %</span>
+                            <span class="stat-value">48%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="city-block">
+                    <h3>San Jose</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%232a2a2a' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3ESJ Density Map%3C/text%3E%3C/svg%3E" alt="SJ density">
+                    <div class="city-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Bike Stations</span>
+                            <span class="stat-value">120+</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Transit Hubs</span>
+                            <span class="stat-value">8 Caltrain</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Last-Mile %</span>
+                            <span class="stat-value">35%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="city-block">
+                    <h3>East Bay</h3>
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%232a2a2a' width='400' height='400'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3EEB Density Map%3C/text%3E%3C/svg%3E" alt="EB density">
+                    <div class="city-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Bike Stations</span>
+                            <span class="stat-value">200+</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Transit Hubs</span>
+                            <span class="stat-value">22 BART</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Last-Mile %</span>
+                            <span class="stat-value">42%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="split">
+            <div class="split-content">
+                <h3>The Full Network</h3>
+                <p>
+                    I mapped every Bay Wheels station across the region. The network spans over 670 
+                    stations, with clear concentrations in transit-rich urban cores.
+                </p>
+                <p>
+                    Station density correlates strongly with public transit access—bike share thrives 
+                    where transit infrastructure already exists.
+                </p>
+            </div>
+            <div class="split-image">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Crect fill='%232a2a2a' width='600' height='600'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3EAll Stations Map%3C/text%3E%3C/svg%3E" alt="All stations">
+            </div>
+        </div>
+
+        <div class="split">
+            <div class="split-image">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'%3E%3Crect fill='%232a2a2a' width='600' height='600'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='%2300d9ff' text-anchor='middle' dominant-baseline='middle'%3ENear Transit Map%3C/text%3E%3C/svg%3E" alt="Near transit">
+            </div>
+            <div class="split-content">
+                <h3>The Last-Mile Zone</h3>
+                <p>
+                    I identified every station within 500 meters of a BART or Caltrain stop—the 
+                    distance most people will walk. These are the critical last-mile connectors.
+                </p>
+                <p>
+                    Dark blue dots show stations positioned to serve commuters making that final 
+                    leg between transit and destination.
+                </p>
+            </div>
+        </div>
+
+        <div class="regression-results">
+            <h2>Regression Model Results</h2>
+            <p style="text-align: center; color: #999; margin-bottom: 2rem;">
+                I built a logistic regression model to predict last-mile usage based on location, 
+                demographics, and environmental factors.
+            </p>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>Model Performance</h4>
+                    <div class="result-stat">78%</div>
+                    <p>Prediction accuracy across all three cities. The model successfully identifies 
+                    last-mile hub stations with high confidence.</p>
+                </div>
+
+                <div class="result-card">
+                    <h4>Top Predictor</h4>
+                    <div class="result-stat">Transit %</div>
+                    <p>Percentage of public transit commuters in census tract is the strongest 
+                    predictor—more influential than income, proximity, or weather.</p>
+                </div>
+
+                <div class="result-card">
+                    <h4>Bike Type Impact</h4>
+                    <div class="result-stat">2.3x</div>
+                    <p>Classic bikes are 2.3 times more likely than e-bikes to be used for 
+                    last-mile trips under 1 mile.</p>
+                </div>
+
+                <div class="result-card">
+                    <h4>Weather Effect</h4>
+                    <div class="result-stat">-35%</div>
+                    <p>High wind conditions reduce last-mile trip probability by 35%. 
+                    Precipitation has a smaller but still significant negative impact.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="story">
+            <h2>What I Learned</h2>
+
+            <p>
+                The data tells a clear story: Bay Wheels succeeds as a last-mile solution in 
+                neighborhoods where transit culture already exists. The system doesn't create 
+                transit ridership from scratch—it amplifies what's already there.
+            </p>
+
+            <p>
+                In San Francisco's Financial District and Oakland's downtown, where 40-50% of 
+                residents already commute by transit, bike share becomes the natural connector. 
+                But in neighborhoods with low transit ridership, even perfectly placed stations 
+                see minimal last-mile usage.
+            </p>
+
+            <p>
+                I also found that members—not casual users—drive last-mile trips. This suggests 
+                bike share has become integrated into daily routines for thousands of Bay Area 
+                commuters who've figured out the most efficient way to get from BART to their desk.
+            </p>
+        </div>
+
+        <div class="closing">
+            <h2>The Path Forward</h2>
+            <p>
+                My analysis suggests that strategic investments—more stations near high-traffic 
+                transit hubs, better classic bike availability during peak hours, and weather-responsive 
+                operations—could significantly expand Bay Wheels' role in solving the last-mile problem.
+            </p>
+            <p>
+                As the Bay Area works to reduce car dependency, the last mile may be the most 
+                critical connection of all.
+            </p>
+            <a href="https://sherya21.github.io/Portfolio/projects/11_Baywheels/" class="cta" target="_blank">
+                EXPLORE FULL INTERACTIVE ANALYSIS
+            </a>
+        </div>
+    </article>
+
+    <script>
+        // Custom cursor
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.full-bleed, .split-content, .split-image, .city-block').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Stagger city blocks
+        document.querySelectorAll('.city-block').forEach((block, i) => {
+            block.style.transitionDelay = `${i * 0.15}s`;
+        });
+    </script>
+</body>
+</html>
